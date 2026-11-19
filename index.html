@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TetherSync</title>
+</head>
+<body>
+    <textarea id="editor" placeholder="Start typing..."></textarea>
+
+    <script type="module">
+        import * as Y from 'https://esm.sh/yjs'
+        import { WebrtcProvider } from 'https://esm.sh/y-webrtc'
+
+        const room = location.hash.slice(1) || 'test-room'
+
+        const doc = new Y.Doc()
+        const provider = new WebrtcProvider(room, doc)
+
+        const text = doc.getText('content')
+        const editor = document.querySelector('#editor')
+
+	let updating = false
+
+	text.observe(() => {
+	    if (!updating) {
+		editor.value = text.toString()
+	    }
+	})
+
+	editor.addEventListener('input', () => {
+	    updating = true
+
+	    doc.transact(() => {
+		text.delete(0, text.length)
+		text.insert(0, editor.value)
+	    })
+
+	    updating = false
+	})
+    </script>
+</body>
+</html>
